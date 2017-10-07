@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>xll</title>
+</head>
+<body>
+i am xll
+<script>
+    var xhr=new XMLHttpRequest();
+    xhr.onreadystatechange=function(){
+        if(xhr.readyState==4){
+            if(xhr.status===200|| xhr.status==304)
+            {
+                console.log(xhr.responseText)
+            }
+        }
+    }
+    xhr.open("get","http://b.xll.com:90/qq_priv",true);
+    xhr.send();
+</script>
+</body>
+</html>

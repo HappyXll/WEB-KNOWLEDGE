@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+i am  qq.com'index
+<input type="text" class="textva"/>
+<ul class="ul"></ul>
+<button class="btn">click me</button>
+<script>
+/*    var xhr=new XMLHttpRequest();
+    xhr.open("get","http://xllcome.com/xll.json",true);
+    xhr.onload=function () {
+        console.log( xhr.responseText);
+    };
+    xhr.send();*/
+var ul=document.querySelector(".ul");
+var btn=document.querySelector(".btn");
+btn.addEventListener('click',function(){
+    var functionName="Jquery"+parseInt(Math.random()*100000);
+    var frage=document.createDocumentFragment();
+    window[functionName]=function (data) {
+        for(var key in data){
+
+            var li=document.createElement("li");
+            li.innerText=(key+":"+data[key]);
+            frage.appendChild(li);
+        }
+        ul.appendChild(frage)
+    }
+    var  scr=document.createElement("script");
+    var s=document.querySelector(".textva").value;
+    scr.src="/js"+"?functionName="+functionName;
+    document.body.appendChild(scr);
+},true);
+
+</script>
+</body>
+</html>

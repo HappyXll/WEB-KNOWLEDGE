@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        input{
+            margin:20px;
+            width: 200px;
+            background-color: aliceblue;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+<div class="ct">
+    <h1>使用降域实现跨域</h1>
+    <div class="main">
+        <input type="text" placeholder="http://a.xll.com:8080/a.html" class="inpu">
+    </div>
+    <iframe src="http://b.xll.com:8080/b.html" frameborder="0">sss</iframe>
+</div>
+<script>
+    var input=document.querySelector(".inpu");
+    input.addEventListener("input",function ()
+    {
+        window.frames[0].document.querySelector("input").value=this.value;
+    })
+    //降域处理。
+    document.domain="xll.com"
+</script>
+</body>
+</html>

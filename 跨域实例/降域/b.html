@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html,body{
+            margin:0;
+        }
+        input{
+            margin:20px;
+            width: 200px;
+            background-color:lightblue;
+            height: 100px;
+        }
+    </style>
+  </head>
+<body>
+<input type="text" placeholder="http://b.xll.com:8080/b.html">
+<script>
+     var input=document.querySelector("input");
+     input.addEventListener("input",function ()
+     {
+      window.parent.document.querySelector("input").value=this.value;
+     });
+ //降域处理。
+    document.domain="xll.com";
+
+</script>
+</body>
+</html>
