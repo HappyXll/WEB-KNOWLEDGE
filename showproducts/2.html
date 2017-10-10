@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+    <style>
+        ul,li,div,a,body,html,img{
+            margin:0;
+            padding:0;
+        }
+        ul{
+            width:900px;
+            margin-left:auto;
+            margin-right:auto;
+
+        }
+        ul>li{
+            list-style:none;
+        }
+        ul>li:after{
+            display:block;
+            content:"";
+            clear:both;
+        }
+        ul>li>div{
+            width:30%;
+            background:#fff;
+            float:left;
+            position:relative;
+            border:1px solid #ccc;
+            margin-left:5px;
+            text-align:center;
+            padding:0 15px;
+            box-sizing:border-box;
+            margin-bottom:10px;
+        }
+
+        .pannel
+        { display:none;
+            position:absolute;
+            background:#ccc;
+            width:100%;
+            height:100%;
+            opacity:0.8;
+            top:0;
+            left:0;
+            text-align:center;
+
+
+        }
+        .pannel a{
+            text-decoration:none;
+            position:absolute;
+            top:45%;
+            left:40%;
+            padding: 10px;
+            margin:-10px;
+            color:black;
+            border:1px solid black;
+            border-radius:5px;
+            background:pink;
+        }
+        ul>li>div:hover .pannel{
+            display:block;
+        }
+        button{
+            display:block;
+            outline:none;
+            border:none;
+            padding:10px;
+            margin:10px;
+            border-radius:5px;
+            color:#c1c;
+            margin-left:auto;
+            margin-right:auto;
+        }
+    </style>
+</head>
+<body>
+<ul>
+    <li>
+        <div class="box">
+            <img src="http://img10.360buyimg.com/N3/jfs/t2242/92/1446546284/374195/9196ac66/56af0958N1a723458.jpg" alt="">
+            <p>藏美千足金和田玉金镶玉路路通吊坠</p>
+            <p class="price">￥888.00</p>
+            <div class="pannel">
+                <a href="#">立即抢购</a>
+            </div>
+        </div>
+
+        <div class="box">
+            <div>
+                <img src="http://img10.360buyimg.com/N3/jfs/t1360/330/897475737/123557/23624706/55b05e25N13d4ec5e.jpg" alt="">
+            </div>
+            <p>藏美千足金和田玉金镶玉路路通吊坠</p>
+            <p class="price">￥1500.00</p>
+            <div class="pannel">
+                <a href="#">立即抢购</a>
+            </div>
+        </div>
+
+        <div class="box">
+            <img src="http://img10.360buyimg.com/N3/jfs/t1360/330/897475737/123557/23624706/55b05e25N13d4ec5e.jpg" alt="">
+            <p>藏美千足金和田玉金镶玉路路通吊坠</p>
+            <p class="price">￥1500.00</p>
+            <div class="pannel">
+                <a href="#">立即抢购</a>
+            </div>
+        </div>
+    </li>
+
+
+
+
+</ul>
+
+
+<button>更多</button>
+<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+<script>
+    var products = [
+        {
+            img: 'http://img10.360buyimg.com/N3/jfs/t2242/92/1446546284/374195/9196ac66/56af0958N1a723458.jpg',
+            name: '珂兰 黄金手 猴哥款',
+            price: '￥405.00'
+        },{
+            img: 'http://img10.360buyimg.com/N3/jfs/t2242/92/1446546284/374195/9196ac66/56af0958N1a723458.jpg',
+            name: '珂兰 黄金转运珠 猴哥款',
+            price: '￥100.00'
+        },{
+            img: 'http://img10.360buyimg.com/N3/jfs/t2242/92/1446546284/374195/9196ac66/56af0958N1a723458.jpg',
+            name: '珂兰 黄金手链 3D猴哥款',
+            price: '￥45.00'
+        }
+    ];
+    $("button").on('click',function(){
+        var li='';
+        var s="";
+        for(var i=0;i<products.length;i++)
+        {
+            s+='<div class="box"><img src='
+                + products[i].img+ '><p>'
+                + products[i].name+'</p><p class="price">'
+                + products[i].price+'</p>'
+                + '<div class="pannel"><a href="#">立即抢购</a></div></div>';
+        }
+        li='<li>'+s+'</li>';
+        $("ul").append(li);
+
+
+
+    });
+
+
+
+</script>
+</body>
+</html>
