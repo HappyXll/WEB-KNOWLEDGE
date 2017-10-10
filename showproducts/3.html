@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+    <style>
+        *{
+            padding:0;
+            margin:0;
+        }
+        .wrapper{
+            width: 90%;
+            box-sizing: border-box;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 80px;
+            box-sizing: border-box;
+        }
+
+        ul>li{
+            list-style:none;
+            width:calc(100%/3);
+            float:left;
+            border:1px solid #ccc;
+            padding: 5px 0;
+            background:#ffffff;
+            text-align: center;
+            border-bottom: none;
+            box-sizing: border-box;
+        }
+        .active{
+            background:rgba(139, 139, 158, 0.48);
+        }
+        ul:after{
+            content:"";
+            display:block;
+            clear:both;
+
+        }
+        .content{
+
+            border:1px solid #ccc;
+            height: 180px;
+            position: relative;
+           overflow: hidden;
+        }
+        .con_wrapper{
+            width: 300% ;
+            position: absolute;
+            top:0;
+            left: 0;
+            box-sizing: border-box;
+        }
+        .con_wrapper>div{
+
+            width: calc(100%/3);
+            float: left;
+            height:200px;
+            box-sizing: border-box;
+        }
+
+        .con_wrapper div:nth-child(1){
+            background: rgba(160, 172, 176, 0.93);
+            left:0;
+        }
+        .con_wrapper div:nth-child(2){
+            background: rgba(52, 78, 86, 0.68);
+
+        }
+        .con_wrapper div:nth-child(3){
+            background: rgba(66, 151, 176, 0.59);
+
+        }
+       . con_wrapper:after{
+            content:"";
+            display:block;
+            clear:both;
+        }
+
+
+
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <header>
+        <ul>
+            <li class="active">tab1</li>
+            <li>tab2</li>
+            <li>tab3</li>
+        </ul>
+    </header>
+    <section class="content">
+        <div class="con_wrapper">
+        <div>content1</div>
+        <div>content2</div>
+            <div>content3</div>
+        </div>
+    </section>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script>
+         $("ul>li").on('click',function () {
+             var that=$(this);
+             that.siblings().removeClass("active");
+             that.addClass("active");
+             var index=that.index();
+             var s=-index/3* ($(".con_wrapper").innerWidth());
+
+             $(".con_wrapper").animate({left:s+"px"}, 1000);
+         })
+
+
+    </script>
+</div>
+</body>
+</html>
