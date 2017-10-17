@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        .carousel
+        {
+            position:relative;
+            width:600px;
+            height:500px;
+            overflow:hidden;
+            margin: 20px auto;
+        }
+        .img-ct
+        {  width:2400px;
+            height:100%;
+            position:absolute;
+
+        }
+        .img-ct>li
+        {
+            list-style:none;
+            float:left
+        }
+        li:first-child{
+            display:block;
+        }
+        .arrow
+        {
+            text-decoration:none;
+            position:absolute;
+            top:50%;
+            transform:translateY(-50%);
+            border:1px solid #fff;
+            border-radius:30px;
+            width:30px;
+            height:30px;
+            line-height:30px;
+            text-align:center;
+            box-shadow: 0 2px 4px #999;
+            color:#fff;
+            background:#4E443C;
+            opacity:0.6;
+
+
+        }
+        .arrow:hover
+        {
+            opacity:1
+        }
+        .pre
+        {
+            left:5%;
+        }
+        .next
+        {
+            right:5%;
+        }
+        .bullet
+        {
+            position:absolute;
+            left:0;
+            right:0;
+            bottom:50px;
+            text-align:center;
+        }
+        .bullet li
+        {
+            list-style:none;
+            display:inline-block;
+            border:1px solid #fff;
+            width:15px;
+            height:15px;
+            border-radius:50%;
+            opacity:0.8;
+            margin-left:30px;
+        }
+        .active
+        {
+            background:#fff;
+        }
+        .bullet li:hover
+        {
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="carousel">
+    <ul class="img-ct">
+        <li data="1"><a href="void(0)"><img src="https://picsum.photos/600/500?image=1074" alt=""></a></li>
+        <li data='2'><a href="void(0)"><img src="https://picsum.photos/600/500?image=1075" alt=""></a></li>
+        <li data='3'><a href="void(0)"> <img src="https://picsum.photos/600/500?image=1076" alt=""></a></li>
+        <li data='4'><a href="void(0)"><img src="https://picsum.photos/600/500?image=1077" alt=""></a></li>
+    </ul>
+    <span href="void(0)" class="pre arrow"><</span>
+    <span href="void(0)" class="next arrow">></span>
+    <ul class="bullet">
+        <li class='active'></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>
+<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+<script>/*思路对于淡入淡出的效果则用的是fadeIn和fadeOut来进行的
+ */
+var clock;
+//图片的个数
+var  imglen=$('.img-ct>li').length;
+//放置图片的ul
+var  imgCt=$('.img-ct');
+//图片切换的索引
+var  index=0;
+
+//向前标志
+var pre=$('.pre');
+//向后标志
+var next=$('.next');
+
+
+//设置ul的宽口展示的left值
+
+//状态锁
+var block=false;
+//自动播放函数
+function autoPlay(){
+    clock=setInterval(function(){
+        nextPic((i+1)%imglen);
+    },3000)
+}
+//停止自动播放函数
+function stopAuto(clock)
+{
+    clearInterval(clock);
+}
+autoPlay();
+
+
+//展示前一张图的函数
+function prePic(len){
+    if(!block)
+    {//锁关闭
+        block=true;
+        $('.img-ct>li').fadeOut(500);
+        $('.img-ct>li').eq(len).fadeIn(500,function()
+        { console.log(i,len);
+            i=len;
+            index=len;
+            bullet();
+            block=false;
+
+        }) ;
+    }
+}
+
+var i=0;
+//展示下一张图的函数
+function nextPic(len)
+{
+    if(!block){
+        block=true;
+        $('.img-ct>li').eq(i).fadeOut(500);
+        $('.img-ct>li').eq(len).fadeIn(500,function()
+        { index=len;
+            i=len;
+            bullet();
+            block=false;
+        });
+    }
+}
+
+//图片标签的展示
+function bullet()
+{
+    $('.bullet>li').removeClass('active');
+    $('.bullet>li').eq(index).addClass('active');
+}
+
+//点击'向前'按钮
+pre.on('click',function()
+{  //停止自动播放
+    stopAuto();
+    //展示前一张图片
+    prePic((i-1+imglen)%imglen);
+
+});
+
+//点击'向后'的按钮
+
+next.on('click',function()
+{
+
+    //停止自动播放
+    stopAuto();
+    //展示下一张图片
+    nextPic((i+1)%imglen);
+});
+
+$('.bullet>li').on('click',function(){
+    //停止自动播放
+    stopAuto();
+    var len=$(this).index();
+    if(len>i){
+        nextPic(len);
+    }
+    else if(len<i){
+        prePic(len);
+    }
+
+});</script>
+</body>
+</html>
