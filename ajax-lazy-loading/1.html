@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+       *{
+           margin: 0;
+           padding: 0;
+       }
+        .wrapper{
+            width: 700px;
+            margin: 0 auto;
+
+        }
+        li{
+         list-style: none;
+
+        }
+        li>a{
+            text-decoration: none;
+            display: block;
+            border: 1px solid rgba(232, 229, 218, 0.86);
+            margin-bottom: 8px;
+            color: #836767;
+        }
+       li>a:active{
+           color:grey;
+       }
+       li>a:after{
+           content: "";
+           display: block;
+           clear: both;
+       }
+       li>a>img{
+           width: 100px;
+           height: 100px;
+           float: left;
+       }
+
+        li>a>h4{
+            margin-top: 14px;
+            margin-left: 113px;
+            font-size: 19px;
+
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <ul class="news">
+
+    </ul>
+    <p class="loadmore">loading more</p>
+</div>
+<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+<script>
+    var pageindex=0;//发送数据的起始页
+    var len=3;//数据的个数
+    var arriveblock=true;//为了防止重复发送相同的请求而设定的状态锁
+    var isallover=false;//判断数据已经全部发送完毕。
+    var s;
+    getMes();//页面初始化的时候发送ajax请求并且渲染界面
+    $(window).on('scroll',function () {
+        if(s){
+            clearTimeout(s)
+        }
+        //是为了防止滚动的时候多次调用函数，这样设置后就可以在滚动的最后一刻停下来调用函数，这是一种优化。
+        s=setTimeout(function () {
+            show();
+        },300);
+    } );
+
+    //是否在窗口的可视范围内
+    function isVisible(ele)
+    {
+        var offsettop=ele.offset().top;
+        var windowscrolltop=$(window).scrollTop();
+        var windowHeight= $(window).height();
+        var nodeHeight=ele.height();
+        if((offsettop< windowscrolltop+windowHeight)&&(offsettop+nodeHeight>windowscrolltop))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+    //将ajax的请求返回的内容进行渲染
+    function render(news)
+    {   var html='';
+        var data=news.data;
+        for(var i=0;i<data.length;i++)
+        {
+           html+='<li> <a href=';
+           html+=data[i].link+'><img src='
+           html+=data[i].img+' alt=""><h4>'
+           html+=data[i].brif+'</h4></a></li>'
+        }
+        $('.news').append($(html));
+    }
+    //判断当前页面数据是否已经全部加载完毕
+    function isover(news)
+    {  var len=news.data.length;
+       if( len>0)
+        {
+            isallover=false;
+        }
+        else
+       {
+           isallover=true;
+           $('.loadmore').text('加载完毕');
+           return ;
+       }
+    }
+    //发送ajax请求并且获得数据
+    function getMes()
+    {   arriveblock=false;
+            $.ajax({
+                url:'/news',
+                method:'get',
+                data:{pageIndex:pageindex,newslength:len}
+            }).done(function (news)
+            {
+                arriveblock=true;
+                if(news.status==0)
+                {
+                    pageindex++;
+                    render(news);
+                    show();
+                    isover(news);
+                }
+                else
+                {
+                    alert('数据错误');
+                }
+            }).fail(function () {
+                console.log("信息错误");
+            });
+        }
+
+//总的接口
+    function show()
+    {
+        if(isVisible($('.loadmore'))&&arriveblock&&!isallover)
+        {
+            getMes();
+
+        }
+    }
+</script>
+</body>
+</html>
