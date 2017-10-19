@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .wrapper{
+            position: relative;
+        }
+        .wrapper>div{
+            width: 200px;
+            position: absolute;
+            padding: 10px;
+            box-sizing: border-box;
+            margin: 10px;
+            transition: all 1s;
+        }
+        .one{
+            height: 100px;
+            background-color: cornflowerblue;
+        }
+        .two{
+            height: 260px;
+            background-color: cadetblue;
+        }
+        .three{
+            height: 300px;
+            background-color: lightgreen;
+        }
+        .four{
+            height: 380px;
+            background-color: rgba(162, 75, 91, 0.85);
+        }
+        .five{
+            height: 400px;
+            background-color: darkcyan;
+
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="box one">box1</div>
+    <div class="box four">box2</div>
+    <div class="box two">box3</div>
+    <div class="box five">box4</div>
+    <div class="box one">box5</div>
+    <div class="box three">box6</div>
+    <div class="box two">box7</div>
+    <div class="box four">box8</div>
+    <div class="box three">box9</div>
+    <div class="box four">box10</div>
+    <div class="box  five">box11</div>
+    <div class="box two">box12</div>
+    <div class="box four">box13</div>
+    <div class="box three">box14</div>
+    <div class="box one">box15</div>
+</div>
+<script>
+    /*1.数组,选出最小值，并确定位置
+    2.排列:选出所有div
+    3.渲染*/
+    //用一个块作用域进行封装
+var waterfloor=(function (){
+    function  render() {
+        var colArr=[];
+        var boxs=document.querySelectorAll('.box');
+        //获取数组个数
+        var divwidth=document.querySelector('.box').offsetWidth;
+        var length=Math.floor(window.innerWidth/divwidth);
+        for(var i=0;i<length;i++)
+        {
+            colArr.push(0);
+        }
+        //获取数组最小值
+        function getmin(arr) {
+            var min= Math.min.apply(null,arr);
+            var minindex=arr.indexOf(min);
+            return {
+                minhight:min,
+                minindex:minindex
+            }
+        }
+        boxs.forEach(function (box) {
+            //获取元素的marginLeft+matginRight
+            var marginone=parseInt(window.getComputedStyle(box).marginLeft+window.getComputedStyle(box).marginRight);
+            var margintwo=parseInt(window.getComputedStyle(box).marginTop+window.getComputedStyle(box).marginBottom);
+            //offset 包括border padding content
+            var boxwiedth=box.offsetWidth;
+            var min=getmin(colArr);
+            box.style.top=min.minhight+10+"px";
+            box.style.left=min.minindex*(marginone+boxwiedth)+"px";
+            colArr[min.minindex]+=(box.offsetHeight+margintwo);
+        });
+    }
+    return{
+        init:render
+    }
+})();
+    waterfloor.init();
+window.addEventListener('resize',waterfloor.init);
+
+
+
+</script>
+</body>
+</html>
