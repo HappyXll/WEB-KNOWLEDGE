@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body ,div{
+            padding: 0;
+            margin: 0;
+        }
+        .wrapper{
+            text-align: center;
+        }
+        input{
+            outline: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 7px;
+            border: 3px solid rgba(46, 33, 33, 0.77);
+
+        }
+        button{
+            padding: 13px;
+            border-radius: 5px;
+            border: none;
+            color: rgb(133, 109, 109);
+            font-size: 16px;
+        }
+        .box{
+            margin: 20px;
+            box-sizing: border-box;
+        }
+        .box:after{
+            display: block;
+            clear: both;
+            content: "";
+
+        }
+        .box>img{
+            float: left;
+            box-sizing: border-box;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <input type="text">
+    <button class="button">搜索</button>
+    <div class="box">
+
+    </div>
+</div>
+
+<script>
+
+   var boxWidth1=parseFloat(window.getComputedStyle(document.querySelector(".box")).getPropertyValue("width"))-17;
+    var base=200;
+   //一般的写法,用callback来处理回调函数，当ajax请求多了的时候，不易维护。
+  /* function getdata(q,page,callback)
+    {
+        var xhr=new XMLHttpRequest();
+        var data={
+            key:'6758718-2643e2e84aee884bd921c48fe',
+            q:q,
+            imgge_type:"photo",
+            page:page
+        };
+        function urlshow(data)
+        {  var http="https://pixabay.com/api/?"
+            for(var key in data)
+            {
+                http+=key+"="+data[key]+'&';
+            }
+            return http;
+        }
+        var url=urlshow(data);
+        var message;
+        xhr.open('get',url);
+        xhr.send();
+        xhr.onload=function ()
+        {
+            message=  JSON.parse(xhr.responseText);
+           callback(message);
+        };
+    }*/
+  /*用promise来改写代码*/
+    function getdata(q,page)
+    {
+        return new Promise(function (resolve,reject)
+        {
+            var xhr=new XMLHttpRequest();
+            var data={
+                key:'6758718-2643e2e84aee884bd921c48fe',
+                q:q,
+                imgge_type:"photo",
+                page:page
+            };
+            function urlshow(data)
+            {  var http="https://pixabay.com/api/?"
+                for(var key in data)
+                {
+                    http+=key+"="+data[key]+'&';
+                }
+                return http;
+            }
+            var url=urlshow(data);
+            var message;
+            xhr.open('get',url);
+            xhr.send();
+            xhr.onload=function ()
+            {
+                message=  JSON.parse(xhr.responseText);
+                resolve(message);
+                reject("error");
+            };
+          });
+        }
+ // 用promise方法来调用
+  //渲染
+  function render(data)
+  {  var arrList=[];
+      var totalWidth=0;
+      for(var i=0;i<data.length;i++)
+      {
+         //以基准点为高，按照原来图片的宽高比例得到新的宽度
+          data[i].newwidth1=(data[i].webformatWidth/data[i].webformatHeight)*200;
+          if(totalWidth+ data[i].newwidth1>boxWidth1){
+              show(arrList,totalWidth);
+              arrList=[data[i]];
+              totalWidth=data[i].newwidth1;
+          }
+          else{
+              totalWidth+=data[i].newwidth1;
+              arrList.push(data[i]);
+          }
+       }
+      show(arrList,totalWidth);
+  }
+   function show (data,totalWidth)
+   {
+       var newHeight2=(boxWidth1/totalWidth)*base;
+       var box=document.querySelector('.box');
+       var frage=document.createDocumentFragment();
+       var all=0;
+       data.forEach( function (img)
+       {
+          img.newWidth2=img.webformatWidth/img.webformatHeight*newHeight2;
+          var imgHtml=document.createElement('img');
+          imgHtml.src=img.webformatURL;
+          imgHtml.style.width=img.newWidth2+'px';
+          imgHtml.style.height=newHeight2+'px';
+           all+=img.newWidth2;
+           frage.append(imgHtml);
+       });
+       box.appendChild(frage);
+   }
+  //回调函数处理ajax请求，会陷入回调地狱。所以选用promise来处理函数
+   /* getdata('flower',2,function (data) {
+       console.log(data);
+       getdata('flower',3,function (data) {
+           console.log(data);
+           getdata('flower',1,function (data) {
+               console.log(data);
+           })
+       })
+   });*/
+
+   var btn=document.querySelector(".button");
+   console.log("button",btn)
+   btn.addEventListener('click',function () {
+       var inputval=document.querySelector('input').value;
+       getdata(inputval,1).then(function(data)
+       {   render(data.hits);
+            return getdata(inputval,2).then(function (data) {
+                render(data.hits);
+                return getdata(inputval,3).then(function (data) {
+                    render(data.hits);
+                })
+            })
+       });
+   });
+</script>
+</body>
+</html>
