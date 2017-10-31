@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        .carouse
+        { position:relative;
+            margin:0 10px;
+            width: 600px;
+            height: 600px;
+            overflow: hidden;
+            float: left;
+        }
+        .img-ct
+        {  position: absolute;
+           width: 2400px;
+            height: 600px;
+        }
+        .img-ct>li
+        {   width:600px;
+            height:606px;
+            list-style:none;
+            float: left;
+        }
+        .arrow
+        {
+            text-decoration:none;
+            position:absolute;
+            top:50%;
+            transform:translateY(-50%);
+            border:1px solid #fff;
+            border-radius:30px;
+            width:30px;
+            height:30px;
+            line-height:30px;
+            text-align:center;
+            box-shadow: 0 2px 4px #999;
+            color:#fff;
+            background:#4E443C;
+            opacity:0.6;
+
+        }
+        .arrow:hover
+        {
+            opacity:1
+        }
+        .pre
+        {
+            left:10%;
+        }
+        .next
+        {
+            right:10%;
+        }
+        .bullet
+        {
+            position:absolute;
+            left:0;
+            right:0;
+            bottom:50px;
+            text-align:center;
+        }
+        .bullet li
+        {
+            list-style:none;
+            display:inline-block;
+            border:1px solid #fff;
+            width:15px;
+            height:15px;
+            border-radius:50%;
+            opacity:0.8;
+        }
+        .active
+        {
+            background:#fff;
+        }
+        .bullet li:hover
+        {
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="carouse carousel">
+    <ul class="img-ct">
+        <li data="1"><a href="void(0)"></a><img src="https://picsum.photos/600/600?image=1074" alt=""></a></li>
+        <li data='2'><a href="void(0)"><img src="https://picsum.photos/600/600?image=1075" alt=""></a></li>
+        <li data='3'><a href="void(0)"> <img src="https://picsum.photos/600/600?image=1076" alt=""></a></li>
+        <li data='4'><a href="void(0)"><img src="https://picsum.photos/600/600?image=1077" alt=""></a></li>
+    </ul>
+    <span href="void(0)" class="pre arrow"><</span>
+    <span href="void(0)" class="next arrow">></span>
+    <ul class="bullet">
+        <li class='active'></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>
+
+<div class="carouse carouse2 ">
+    <ul class="img-ct">
+        <li data="1"><a href="void(0)"></a><img src="https://picsum.photos/600/600?image=1074" alt=""></a></li>
+        <li data='2'><a href="void(0)"><img src="https://picsum.photos/600/600?image=1075" alt=""></a></li>
+        <li data='3'><a href="void(0)"> <img src="https://picsum.photos/600/600?image=1076" alt=""></a></li>
+        <li data='4'><a href="void(0)"><img src="https://picsum.photos/600/600?image=1077" alt=""></a></li>
+    </ul>
+    <span href="void(0)" class="pre arrow"><</span>
+    <span href="void(0)" class="next arrow">></span>
+    <ul class="bullet">
+        <li class='active'></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>
+<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+<script>
+
+    /**
+     * Created by u on 2017/10/17.
+     */
+    /*思路是将最后一张图片复制到第一张图片之前
+     将第一张图片复制到最后一张图片之后
+     点击pre按钮时，ul像左移动(-=)一个图片的宽度
+     如果点击到第一张（data=5）的
+     问题处理：当连续点击多次的时候，点到最后或最前面一张的时候，动画没有完成，
+     会出现留白的现象。所以得用一个锁来控制，多次点击中只有保证动画完成后才能进行下一个动画的开始。
+     */
+
+ //用立即执行函数包裹，返回一个对象，这样别人也无法读取函数内部的参数了
+ var carousel=(function(){
+     function Carousel(wrapper)
+     {
+         this.wrapper=wrapper;
+         //定时器
+         this.clock;
+         //图片的个数
+         this.imglen=wrapper.find('.img-ct>li').length;
+         //放置图片的ul
+         this.imgCt=wrapper.find('.img-ct');
+         //图片切换的索引
+         this.index=0;
+         //每张图片的大小
+         this.imgctwidth=wrapper.find('.img-ct>li').width();
+         //向前标志
+         this.pre=wrapper.find('.pre');
+         //向后标志
+         this.next=wrapper.find('.next');
+         this.block;
+         this.init();
+     }
+
+     Carousel.prototype.init=function () {
+         console.log(this.wrapper)
+         //克隆第一张图片
+         this.firstClone=this.wrapper.find('.img-ct>li').eq(0).clone();
+         //克隆最后一张图片
+         this.lastClone=this.wrapper.find('.img-ct>li').eq(this.imglen-1).clone();
+         //将克隆的第一张图片放置到最后
+         this.imgCt.append(this.firstClone);
+         //将克隆的最后一张图片放置到最前面
+         this.imgCt.prepend(this.lastClone);
+         //设置放置图片的ul的宽度
+         this.imgCt.width((this.imglen+2)*this.imgctwidth);
+         //设置ul的宽口展示的left值
+         this.imgCt.css({left:-this.imgctwidth});
+         //状态锁
+         this.block=false;
+         var _this=this;
+         console.log(this.pre);
+         this.pre.on('click',function () {
+             _this.stopAuto();
+             _this.prePic(1);
+             _this.autoPlay();
+         });
+         this.next.on('click',function () {
+             _this.stopAuto();
+             _this.nextPic(1);
+             _this.autoPlay();
+         });
+         this.wrapper.find('.bullet>li').on('click',function(){
+             //停止自动播放
+             _this.stopAuto();
+             var len=$(this).index();
+             if(len>_this.index)
+             { len=len-_this.index;
+                 _this.nextPic(len);
+             }
+             else if(len<_this.index)
+             {len=_this.index-len;
+                 _this.prePic(len);
+             }
+             _this.autoPlay();
+         });
+         this.autoPlay();
+     };
+     //自动播放函数
+     Carousel.prototype.autoPlay=function ()
+     {
+         this.clock=setInterval(function(){
+             nextPic(1);
+         },3000)
+     };
+     //停止自动播放函数
+     Carousel.prototype.stopAuto=function ()
+     {
+         clearInterval(this.clock);
+     }
+     //展示前一张图的函数
+     Carousel.prototype.prePic=function(len){
+         if(!this.block)
+         {//锁关闭
+             this.block=true;
+             this.index= this.index-len;
+             var _this=this;
+             this.imgCt.animate({left:'+='+len*_this.imgctwidth},function()
+             {      console.log("index",_this.index);
+                 //当滑动到第一张图片之前的克隆图片时
+                 if(_this.index<0)
+                 {
+                     //ul的left切换到最后一张图片
+                     _this.imgCt.css({left:-_this.imglen*_this.imgctwidth});
+                     //索引切换到最后一张图片。
+                     _this.index=_this.imglen-1;
+                 }
+                 //这些步骤都完成后锁打开。
+
+                 console.log(_this.index);
+                 _this.bullet();
+                 _this.block=false;
+
+             });
+         }
+     }
+     //展示下一张图的函数
+     Carousel.prototype.nextPic=function(len){
+         if(!this.block)
+         {this.block=true;
+             this.index= this.index+len;
+             var _this=this;
+             this.imgCt.animate({left:'-='+len*_this.imgctwidth},function(){
+                 //当滑动到最后一张图片的时候
+                 if(_this.index==_this.imglen)
+                 {
+
+                     _this.imgCt.css({left:-_this.imgctwidth});
+                     _this.index=0;
+                 }
+                 console.log("index",_this.index);
+                 _this.bullet();
+                 _this.block=false;
+             });
+
+         }}
+     //图片标签的展示
+     Carousel.prototype.bullet=function () {
+         this.wrapper.find('.bullet>li').removeClass('active');
+         this.wrapper.find('.bullet>li').eq(this.index).addClass('active');
+     }
+     //自动播放函数
+     Carousel.prototype.autoPlay=function ()
+     {   var nextpic=this.nextPic.bind(this,1);
+         this.clock=setInterval(function(){
+             nextpic(1);
+
+         },3000);
+     }
+     Carousel.prototype.stopAuto=function ()
+     {
+         clearInterval(this.clock);
+     }
+     return {
+         action:function(wrap){
+             new Carousel(wrap);
+         }
+     }
+ })();
+
+/* new Carousel($(".carousel"));
+      new Carousel($(".carouse2"));*/
+      var Carousel1=carousel;
+      var Carousel2=carousel;
+      console.log("carousel",carousel);
+    Carousel1.action($(".carousel"));
+    Carousel2.action($(".carouse2"));
+
+</script>
+</body>
+</html>
