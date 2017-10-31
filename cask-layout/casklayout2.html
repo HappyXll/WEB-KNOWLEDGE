@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body ,div{
+            padding: 0;
+            margin: 0;
+        }
+        .wrapper{
+            text-align: center;
+        }
+        input{
+            outline: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 7px;
+            border: 3px solid rgba(46, 33, 33, 0.77);
+
+        }
+        button{
+            padding: 13px;
+            border-radius: 5px;
+            border: none;
+            color: rgb(133, 109, 109);
+            font-size: 16px;
+        }
+        .box{
+            margin: 20px;
+            box-sizing: border-box;
+        }
+        .box:after{
+            display: block;
+            clear: both;
+            content: "";
+
+        }
+        .box>img{
+            float: left;
+            box-sizing: border-box;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <input type="text">
+    <button class="button">搜索</button>
+    <div class="box">
+
+    </div>
+    <div class="hide">没有内容了</div>
+</div>
+
+<script>
+
+   function casklayout(q,page,wrapper)
+   {   var _this=this;
+       this.q=q;
+       this.totalWidth=0;
+       this.page=page;
+       //容器
+      this.container=wrapper;
+       //拼接字符串
+       this.url= this.geturl(this.q,this.page);
+        this.containerWidth=parseFloat(window.getComputedStyle(this.container).getPropertyValue("width"));
+       //获取ajax数据 getData()
+
+      this.getData(this.url).then(function (data) {
+          //创建img，并将img的src设置为ajax获取的图片地址
+          // 1.获取宽高,依据木桶布局设置新的宽高，
+          _this.rows= _this.caskOne(data.hits,_this.container);
+        _this._newrows=  _this.caskTwo( _this.rows,_this.containerWidth);
+          _this._newrows.forEach(function (row) {
+          _this.createImg(row);
+          })
+       })
+
+        /*如果ajax没有返回图片的宽高，就必须等到创建img元素，并将图片地址复制给img后，等到图片都加载了才能知道图片的宽高*/
+        /*因此过程是:1 创建图片 2onload加载完成后获取宽高,3.木桶布局设置新的宽高，4.设置img的宽高，5渲染到页面上*/
+        /*如果ajax的数据返回了图片的宽高，就可以先获取图片的宽高，进行满足木桶布局的宽高设置，
+        然后创建图片，图片加载完成后，设置宽高，
+        * 渲染到页面上
+        * 过程 1.获取宽高 2木桶布局设置新的宽高，3创建img标签并且设置宽高 5 渲染到页面上
+        * */
+
+       //带图片加载完成后，来进行木桶布局排列
+       //滚动条滚动的时候，判断底部的隐藏的按钮是否出现在窗口中，如果将内容展现在桌面上
+   }
+    casklayout.prototype.geturl=function(q,page)
+    {
+       var url="https://pixabay.com/api/?";
+       var data= {
+           key:'6758718-2643e2e84aee884bd921c48fe',
+           q:q,
+           imgge_type:"photo",
+           page:page
+       }
+       for(var key in data)
+       {
+           url+=key+'='+data[key]+'&';
+       }
+       url.replace(/&$/,"");
+      return url;
+   }
+   //ajax+promise技术获取数据
+   casklayout.prototype.getData=function(url)
+    {
+       return new Promise(function (resolve,reject){
+           var xhr=new XMLHttpRequest();
+           xhr.open('get',url);
+           xhr.send();
+           xhr.onload=function ()
+           {
+               message=  JSON.parse(xhr.responseText);
+               resolve(message);
+               reject("error");
+           };
+       });
+     }
+     //木桶布局设置img的新的宽高，第一次改变
+     casklayout.prototype.caskOne=function (data,container)
+     {  //获取容器的宽度
+         var containerWidth=parseFloat(window.getComputedStyle(container).getPropertyValue("width"));
+         //基准高
+         var baseHeight=200;
+         //共有多少行
+         var ros=[];
+         //存放一行的图片
+         var arrList=[];
+         //一行图片的总宽度
+         for(var i=0;i<data.length;i++)
+         { //原始图片宽高比
+             data[i].Ratio=data[i].webformatWidth/data[i].webformatHeight;
+             //按照原来图片的宽高比例得到新的宽度
+             data[i].basewidth=(data[i].Ratio)*baseHeight;
+             if( this.totalWidth+ data[i].basewidth>containerWidth){
+                ros.push(arrList);
+                 arrList=[];
+                 arrList.push(data[i])
+                 this.totalWidth= data[i].basewidth;
+             }
+             else{
+                 this.totalWidth+=data[i].basewidth;
+                 arrList.push(data[i]);
+             }
+         }
+         ros.push(arrList);
+         return ros;
+     }
+     casklayout.prototype.caskTwo=function (rows,containerWidth) {
+
+       rows.forEach(function (row) {
+             var totalbasewidth=0;
+             row.forEach(function (img) {
+                 totalbasewidth+=img.basewidth;
+             })
+
+             var rowHeight=(containerWidth-17)/totalbasewidth*200;
+             for(var i=0;i<row.length;i++)
+             {
+                 row[i].newwidth=row[i].Ratio*rowHeight;
+                 row[i].newHeight=rowHeight;
+             }
+
+         });
+         return rows;
+     }
+   casklayout.prototype.createImg=function (row)
+   {
+            /*rows.forEach(function (row) {*/
+             for(var i=0;i<row.length;i++)
+             {
+                 var img=document.createElement('img');
+                 img.src=row[i].webformatURL;
+                 img.style.width=row[i].newwidth+"px";
+                 img.style.height=row[i].newHeight+"px";
+
+                       box.appendChild(img);
+
+
+
+                    }
+            }
+
+
+
+
+
+   var box=document.querySelector('.box');
+   var button=document.querySelector("button");
+   var input=document.querySelector("input");
+   button.addEventListener('click',function(){
+       box.innerHTML="";
+       var s=new casklayout(input.value,1,box);
+       var s2=new casklayout(input.value,2,box);
+       var s2=new casklayout(input.value,3,box);
+   });
+    
+</script>
+</body>
+</html>

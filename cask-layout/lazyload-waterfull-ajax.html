@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        ul{
+            width: 950px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+
+        }
+        ul>li{
+            list-style: none;
+        }
+
+        .item{
+            position: absolute;
+            width: 290px;
+            border: 1px solid silver;
+            opacity: 0;
+            padding: 5px;
+            box-sizing:border-box;
+            margin: 8px;
+        }
+        .item >a>img{
+            margin: 5px;
+            width: 270px;
+        }
+        .item >a{
+            text-decoration: none;
+        }
+        .item >a>.title{
+            border-bottom: 1px solid #bac2c2;
+            color: black;
+            font-size: 16px;
+            padding-bottom: 5px;
+            width: 256px;
+            margin-left: 10px;
+        }
+        .item >a>.intro{
+            color: grey;
+            font-size: 14px;
+            padding: 9px;
+        }
+        .load{
+            height: 30px;
+            opacity: 0;
+        }
+        .diapper{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <ul class="box">
+        <!--<li class="item">
+            <a href="http://slide.tech.sina.com.cn/d/slide_5_453_102269.html/d/2">
+                <img src="http://n.sinaimg.cn/tech/transform/20171021/10MZ-fymzqpq3027059.jpg"
+                     alt="">
+            <h3 class="title">摄影师水平低:动物龇牙咧嘴</h3>
+            <p class="intro">摄影师你出来保证不打你：动物龇牙咧嘴搞怪瞬间</p>
+            </a>
+        </li>-->
+        <li class="item diapper">
+
+        </li>
+    </ul>
+    <div class="load">看不见的</div>
+</div>
+<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+<script>
+    /*思路1:ajax获取数据
+    *     2.拼接为html节点
+    *     3.通过瀑布流的方式展现Dom
+    *     4.当页面滚动的时候，通过底部看不见的Dom节点判断是否到达窗口的视线中。
+    *     再去请求资源，重复上面三个步骤
+    *     伪代码的展现:
+    *      show(){
+     *      getData(function(data){
+    *          //拼接为html节点
+    *         var node= getNode(data);
+    *         //瀑布流的布局方式
+    *          waterfull(node)
+    *       })}
+    *       $(window).on('scroll',function(){
+    *          //Dom节点判断是否到达窗口的视线中
+    *          if(isvisibal($Node1)){
+    *             show();
+    *          }}
+    * */
+        var messNum=10;
+        var Curpage=1;
+       //存放每列高的数组
+       var colHeights=[];
+      //列的个数
+       var cols=parseInt($('ul').width()/$(".diapper").outerWidth(true));
+
+    var min=3;
+    for(var i=0;i<cols;i++)
+    {
+        colHeights[i]=0;
+    }
+
+    show();
+         var timer=null;
+       $(window).on('scroll',function () {
+
+               clearTimeout(timer);
+               timer=setTimeout(function () {
+                   if(visible($(".load"))){
+                       console.log("load 出现");
+                      show();
+                   }
+                   console.log("load 没有出现");
+               },200);
+
+
+       });
+       function visible(ele)
+       {var offsetTop=ele.offset().top;
+        var scrollTop=$(window).scrollTop();
+        var windowHeight=$(window).height();
+        if(offsetTop>scrollTop&&offsetTop<scrollTop+windowHeight)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+       }
+
+       function show(){
+
+           //ajax获取数据
+           function getData(callback)
+           {
+               $.ajax({
+                   url:"http://platform.sina.com.cn/slide/album_tech",
+                   dataType:'jsonp',
+                   jsonp:'jsoncallback',
+                   data:{
+                       app_key: '1271687855',
+                       num:messNum,
+                       page:Curpage
+                   }
+               }).done(function (ret) {
+                   if(ret.status.code==0)
+                   {
+                       callback(ret.data);
+                   }
+                   else{
+                       callback("信息错误");
+                   }
+               });
+           }
+           //拼接为html节点
+           function getNode(node)
+           {
+               var html=""
+               html+= '<li class="item">';
+               html+= '<a href='+ node.url+'>';
+               html+= '<img src='+node.img_url;
+               html+= '>';
+               html+= '<h3 class="title">'+node.short_name+'</h3>';
+               html+= '<p class="intro">'+node.short_intro+'</p>';
+               html+= '</a> </li>';
+               return $(html);
+           }
+
+           //瀑布流布局
+           function waterfull(ele)
+           {
+               var index;
+               //选出最小高度的列作为top的值
+               console.log("colHeights1",colHeights);
+               min=Math.min.apply(null,colHeights);
+               console.log("min",min);
+               index=colHeights.indexOf(min);
+               console.log("index",index);
+               ele.css({
+                   top:min,
+                   left:index*$(".diapper").outerWidth(true),
+                   opacity:1
+               });
+               colHeights[index]+=ele.outerHeight(true);
+               console.log("colHeights2",colHeights);
+               $('ul').height(Math.max.apply(null,colHeights));
+           }
+          getData(function(data)
+           {
+               $(data).each(function(index,li){
+                   var liNode=getNode(li);
+                   //当每个图片都加载完成后，开始瀑布流布局，
+                   // 这个是图片加载的优化，只要图片加入到了标签中，就可以开始加载了!
+                   liNode.find('img').on('load',function () {
+                       //console.log("img loading..."+index);
+                       //开始瀑布流的布局方式
+                       $(".box").append(liNode);
+                       waterfull(liNode);
+                   });
+               })
+           });
+           Curpage++;
+       }
+</script>
+</body>
+</html>
