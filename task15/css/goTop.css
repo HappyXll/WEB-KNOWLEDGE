@@ -1,0 +1,10 @@
+#goTop{
+    position:fixed;
+    bottom:30px;
+    background:rgb(240, 241, 243);
+    padding:15px;
+    border-radius:5px;
+    font-size:15px;
+    color:rgb(95, 80, 66);
+    right: 6px;
+}
